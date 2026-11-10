@@ -67,4 +67,15 @@ public class CircuitoFirmaTests
 
         Assert.Equal("Un firmante no puede repetirse en el circuito.", ex.Message);
     }
+
+    [Fact]
+    public void Rechazar_FirmanteEnTurno_RegistraRechazo_RF01()
+    {
+        var circuito = CircuitoEnviado();
+        const string motivo = "Falta documentación.";
+
+        circuito.Rechazar(Ana, motivo, Ahora);
+
+        Assert.Equal(new Rechazo(Ana, motivo, 1, Ahora), Assert.Single(circuito.Rechazos));
+    }
 }

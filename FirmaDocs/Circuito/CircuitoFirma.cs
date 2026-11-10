@@ -8,6 +8,7 @@ public sealed class CircuitoFirma
 {
     private readonly List<Firmante> _firmantes;
     private readonly List<Firma> _firmas = [];
+    private readonly List<Rechazo> _rechazos = [];
 
     /// <summary>Crea el circuito de un documento en estado <see cref="EstadoDocumento.Borrador"/>.</summary>
     /// <param name="documentoId">Identificador del documento.</param>
@@ -48,6 +49,9 @@ public sealed class CircuitoFirma
     /// <summary>Historial de aprobaciones, en orden cronológico.</summary>
     public IReadOnlyList<Firma> Firmas => _firmas;
 
+    /// <summary>Historial de rechazos, en orden cronológico.</summary>
+    public IReadOnlyList<Rechazo> Rechazos => _rechazos;
+
     /// <summary>Firmante que debe aprobar ahora; <c>null</c> si el documento no está en circuito.</summary>
     public Firmante? FirmanteEnTurno =>
         Estado == EstadoDocumento.EnCircuito ? _firmantes[_firmas.Count] : null;
@@ -60,6 +64,17 @@ public sealed class CircuitoFirma
             throw new CircuitoFirmaException("Solo se puede enviar a firma un documento en borrador.");
 
         Estado = EstadoDocumento.EnCircuito;
+    }
+
+    /// <summary>Registra el rechazo del firmante en turno.</summary>
+    /// <param name="firmante">Firmante que rechaza.</param>
+    /// <param name="motivo">Motivo del rechazo.</param>
+    /// <param name="instante">Momento del rechazo.</param>
+    public void Rechazar(Firmante firmante, string motivo, DateTimeOffset instante)
+    {
+        ArgumentNullException.ThrowIfNull(firmante);
+
+        _rechazos.Add(new Rechazo(firmante, motivo, Version, instante));
     }
 
     /// <summary>Registra la aprobación del firmante en turno.</summary>

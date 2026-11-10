@@ -3,7 +3,7 @@
 ## Tests
 
 - [x] T1 (RF-01) Añadir test de rechazo válido que verifica firmante, motivo, versión e instante registrados · 25 min
-- [ ] T2 (RF-02) Añadir test de rechazo antes de la versión 3 que verifica que el estado pasa a `Devuelto` · 20 min
+- [x] T2 (RF-02) Añadir test de rechazo antes de la versión 3 que verifica que el estado pasa a `Devuelto` · 20 min
 - [ ] T3 (RF-03) Añadir test de rechazo en la versión 3 que verifica el estado `Rechazado` y que no se admite reenviar · 25 min
 - [ ] T4 (RF-04) Añadir test de reenvío válido del autor que verifica el incremento de versión, el estado `EnCircuito` y el turno del primer firmante · 25 min
 - [ ] T5 (RF-05) Añadir test que verifica que las firmas anteriores se conservan y no completan la aprobación de la versión vigente · 25 min

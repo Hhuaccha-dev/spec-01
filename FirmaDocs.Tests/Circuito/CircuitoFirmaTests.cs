@@ -78,4 +78,14 @@ public class CircuitoFirmaTests
 
         Assert.Equal(new Rechazo(Ana, motivo, 1, Ahora), Assert.Single(circuito.Rechazos));
     }
+
+    [Fact]
+    public void Rechazar_AntesDeLaVersionTres_PasaADocumentoDevuelto_RF02()
+    {
+        var circuito = CircuitoEnviado();
+
+        circuito.Rechazar(Ana, "Falta documentación.", Ahora);
+
+        Assert.Equal(EstadoDocumento.Devuelto, circuito.Estado);
+    }
 }

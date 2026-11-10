@@ -10,5 +10,8 @@ public enum EstadoDocumento
     EnCircuito,
 
     /// <summary>Todos los firmantes aprobaron la versión vigente.</summary>
-    Aprobado
+    Aprobado,
+
+    /// <summary>El documento fue devuelto al autor para corregirlo.</summary>
+    Devuelto
 }

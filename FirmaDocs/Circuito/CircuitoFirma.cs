@@ -75,6 +75,9 @@ public sealed class CircuitoFirma
         ArgumentNullException.ThrowIfNull(firmante);
 
         _rechazos.Add(new Rechazo(firmante, motivo, Version, instante));
+
+        if (Version < 3)
+            Estado = EstadoDocumento.Devuelto;
     }
 
     /// <summary>Registra la aprobación del firmante en turno.</summary>

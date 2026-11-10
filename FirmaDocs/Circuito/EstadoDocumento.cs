@@ -13,5 +13,8 @@ public enum EstadoDocumento
     Aprobado,
 
     /// <summary>El documento fue devuelto al autor para corregirlo.</summary>
-    Devuelto
+    Devuelto,
+
+    /// <summary>El documento fue rechazado durante la última vuelta permitida.</summary>
+    Rechazado
 }

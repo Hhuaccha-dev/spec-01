@@ -66,6 +66,18 @@ public sealed class CircuitoFirma
         Estado = EstadoDocumento.EnCircuito;
     }
 
+    /// <summary>Reenvía al circuito un documento devuelto.</summary>
+    /// <param name="autorId">Identificador del autor que reenvía el documento.</param>
+    /// <exception cref="CircuitoFirmaException">El documento no está devuelto.</exception>
+    public void Reenviar(string autorId)
+    {
+        if (Estado != EstadoDocumento.Devuelto)
+            throw new CircuitoFirmaException("Solo se puede reenviar un documento devuelto.");
+
+        Version++;
+        Estado = EstadoDocumento.EnCircuito;
+    }
+
     /// <summary>Registra el rechazo del firmante en turno.</summary>
     /// <param name="firmante">Firmante que rechaza.</param>
     /// <param name="motivo">Motivo del rechazo.</param>
@@ -78,6 +90,8 @@ public sealed class CircuitoFirma
 
         if (Version < 3)
             Estado = EstadoDocumento.Devuelto;
+        else
+            Estado = EstadoDocumento.Rechazado;
     }
 
     /// <summary>Registra la aprobación del firmante en turno.</summary>

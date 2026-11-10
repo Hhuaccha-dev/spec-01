@@ -88,4 +88,22 @@ public class CircuitoFirmaTests
 
         Assert.Equal(EstadoDocumento.Devuelto, circuito.Estado);
     }
+
+    [Fact]
+    public void Rechazar_VersionTres_CierraDocumentoYNoAdmiteReenvio_RF03()
+    {
+        var circuito = CircuitoEnviado();
+
+        circuito.Rechazar(Ana, "Corrección 1.", Ahora);
+        circuito.Reenviar("marta");
+        circuito.Rechazar(Ana, "Corrección 2.", Ahora.AddHours(1));
+        circuito.Reenviar("marta");
+        circuito.Rechazar(Ana, "Corrección 3.", Ahora.AddHours(2));
+
+        Assert.Equal(3, circuito.Version);
+        Assert.Equal(EstadoDocumento.Rechazado, circuito.Estado);
+        Assert.Throws<CircuitoFirmaException>(() => circuito.Reenviar("marta"));
+        Assert.Equal(3, circuito.Version);
+        Assert.Equal(EstadoDocumento.Rechazado, circuito.Estado);
+    }
 }

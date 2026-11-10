@@ -8,6 +8,7 @@ public sealed class CircuitoFirma
 {
     private readonly List<Firmante> _firmantes;
     private readonly List<Firma> _firmas = [];
+    private readonly List<Rechazo> _rechazos = [];
 
     /// <summary>Crea el circuito de un documento en estado <see cref="EstadoDocumento.Borrador"/>.</summary>
     /// <param name="documentoId">Identificador del documento.</param>
@@ -48,9 +49,14 @@ public sealed class CircuitoFirma
     /// <summary>Historial de aprobaciones, en orden cronológico.</summary>
     public IReadOnlyList<Firma> Firmas => _firmas;
 
+    /// <summary>Historial de rechazos, en orden cronológico.</summary>
+    public IReadOnlyList<Rechazo> Rechazos => _rechazos;
+
     /// <summary>Firmante que debe aprobar ahora; <c>null</c> si el documento no está en circuito.</summary>
     public Firmante? FirmanteEnTurno =>
-        Estado == EstadoDocumento.EnCircuito ? _firmantes[_firmas.Count] : null;
+        Estado == EstadoDocumento.EnCircuito
+            ? _firmantes[_firmas.Count(f => f.Version == Version)]
+            : null;
 
     /// <summary>Envía el documento a firma.</summary>
     /// <exception cref="CircuitoFirmaException">El documento no está en borrador.</exception>
@@ -59,6 +65,40 @@ public sealed class CircuitoFirma
         if (Estado != EstadoDocumento.Borrador)
             throw new CircuitoFirmaException("Solo se puede enviar a firma un documento en borrador.");
 
+        Estado = EstadoDocumento.EnCircuito;
+    }
+
+    /// <summary>Registra el rechazo del firmante en turno.</summary>
+    /// <param name="firmante">Firmante que rechaza.</param>
+    /// <param name="motivo">Motivo del rechazo.</param>
+    /// <param name="instante">Momento del rechazo.</param>
+    /// <exception cref="CircuitoFirmaException">El motivo no es válido, el documento no está en circuito o no es el turno del firmante.</exception>
+    public void Rechazar(Firmante firmante, string motivo, DateTimeOffset instante)
+    {
+        ArgumentNullException.ThrowIfNull(firmante);
+
+        if (string.IsNullOrWhiteSpace(motivo))
+            throw new CircuitoFirmaException("El motivo de rechazo es obligatorio.");
+        if (Estado != EstadoDocumento.EnCircuito)
+            throw new CircuitoFirmaException("El documento no está en circuito de firma.");
+        if (FirmanteEnTurno!.Id != firmante.Id)
+            throw new CircuitoFirmaException($"No es el turno de {firmante.Nombre}.");
+
+        _rechazos.Add(new Rechazo(firmante, motivo, Version, instante));
+        Estado = Version == 3 ? EstadoDocumento.Rechazado : EstadoDocumento.Devuelto;
+    }
+
+    /// <summary>Reenvía una versión corregida del documento devuelto a firma.</summary>
+    /// <param name="autorId">Identificador del autor que reenvía el documento.</param>
+    /// <exception cref="CircuitoFirmaException">El documento no está devuelto o quien lo reenvía no es el autor.</exception>
+    public void Reenviar(string autorId)
+    {
+        if (Estado != EstadoDocumento.Devuelto)
+            throw new CircuitoFirmaException("Solo se puede reenviar un documento devuelto.");
+        if (autorId != AutorId)
+            throw new CircuitoFirmaException("Solo el autor puede reenviar el documento.");
+
+        Version++;
         Estado = EstadoDocumento.EnCircuito;
     }
 
@@ -77,7 +117,7 @@ public sealed class CircuitoFirma
 
         _firmas.Add(new Firma(firmante, Version, instante));
 
-        if (_firmas.Count == _firmantes.Count)
+        if (_firmas.Count(f => f.Version == Version) == _firmantes.Count)
             Estado = EstadoDocumento.Aprobado;
     }
 }
